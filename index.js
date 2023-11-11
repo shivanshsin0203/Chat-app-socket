@@ -7,7 +7,11 @@ const server=http.createServer(app);
 const io=socketio(server);
 
 io.on('connection',(socket)=>{
-    console.log('a user connected '+socket.id)
+    console.log('a user connected '+socket.id);
+    socket.on('msg_send',(data)=>{
+        console.log(data);
+        io.emit('msg_rvd',data)
+    })
 });
 
 app.use('/',express.static(__dirname+'/public'));
