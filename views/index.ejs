@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+</head>
+<body>
+    <h1>Chat App Socket</h1>
+    <button id="startchat" data-roomid="<%= id %>">Start chat</button>
+    <input id="imsg" type="text">
+    <button id="btn">Send</button>
+    <ul id="msglist"></ul>
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- Your HTML and EJS code -->
+
+<script>
+    var socket = io();
+    var start = document.getElementById('startchat');
+    var imsg = document.getElementById('imsg');
+    var btn = document.getElementById('btn');
+    var msglist = document.getElementById('msglist');
+
+    // Function to toggle the visibility of the "Start chat" button
+    function toggleStartButtonVisibility(visible) {
+        start.style.display = visible ? 'block' : 'none';
+    }
+
+    btn.onclick = function() {
+        socket.emit('msg_send', {
+            msg: imsg.value,
+            roomid: start.getAttribute('data-roomid')
+        });
+        imsg.value = '';
+    };
+
+    start.onclick = function() {
+        console.log(start.getAttribute('data-roomid'));
+        socket.emit('join_room', {
+            roomid: start.getAttribute('data-roomid')
+        });
+
+        // Hide the "Start chat" button when connected to a room
+        toggleStartButtonVisibility(false);
+    };
+
+    socket.on('msg_rvd', (data) => {
+        let limsg = document.createElement('li');
+        limsg.innerText = data.msg;
+        msglist.appendChild(limsg);
+    });
+
+    // Example: You may want to show the button again when a user disconnects
+    socket.on('disconnect', () => {
+        // Show the "Start chat" button when disconnected
+        toggleStartButtonVisibility(true);
+    });
+</script>
+
+</body>
+</html>
