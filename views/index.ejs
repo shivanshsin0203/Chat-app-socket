@@ -8,16 +8,23 @@
 <body>
     <h1>Chat App Socket</h1>
     <button id="startchat" data-roomid="<%= id %>">Start chat</button>
-    <input id="imsg" type="text">
+    <input id="user" type="text" placeholder="user ....">
+    <input id="imsg" type="text" placeholder="message ....">
     <button id="btn">Send</button>
-    <ul id="msglist"></ul>
+    <ul id="msglist">
+        <% data.forEach(entry => { %>
+            <li><%= entry.user %> - <%= entry.content %></li>
+        <% }); %>
+    </ul>
     <script src="/socket.io/socket.io.js"></script>
     <!-- Your HTML and EJS code -->
 
 <script>
+   
     var socket = io();
     var start = document.getElementById('startchat');
     var imsg = document.getElementById('imsg');
+    var user = document.getElementById('user');
     var btn = document.getElementById('btn');
     var msglist = document.getElementById('msglist');
 
@@ -29,6 +36,7 @@
     btn.onclick = function() {
         socket.emit('msg_send', {
             msg: imsg.value,
+            user:user.value,
             roomid: start.getAttribute('data-roomid')
         });
         imsg.value = '';
@@ -45,8 +53,9 @@
     };
 
     socket.on('msg_rvd', (data) => {
+        
         let limsg = document.createElement('li');
-        limsg.innerText = data.msg;
+        limsg.innerText = `${data.user}: ${data.msg}`;
         msglist.appendChild(limsg);
     });
 
